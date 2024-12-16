@@ -172,5 +172,4 @@ debug*
 *.swp
 input*
 a
-prompt/1.txt
-prompt/2.txt
+data
