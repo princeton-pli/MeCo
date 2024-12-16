@@ -1,0 +1,48 @@
+# Model
+
+config_name: model_configs/1.6b.json
+tokenizer_name: meta-llama/Meta-Llama-3-8B
+
+run_name: dclm_1.6b_160b_mecoco_stage2
+output_dir: result/dclm_1.6b_160b_mecoco_stage2
+
+# Reload optimizer state, schedule state, etc. from previous checkpoint
+resume_from_checkpoint: result/dclm_1.6b_160b_mecoco_stage1/checkpoint-36000-nodatastate # need to remove the data loader state (see readme)
+
+# Dataset
+
+streaming_dataset: true
+streaming_train_root: data
+streaming_val_root: data
+domains_and_proportions_train: "{'DCLM-cooldown': 1.0}"
+domains_and_proportions_val: "{'DCLM-cooldown': 1.0}" # we are not really using this so just placeholder
+streaming_remote: false
+block_size: 8192 # sequence length
+
+# Optimization
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 16 # this is for 32 gpus (16 * 32 = 512, 512 * 8K = 4M tokens); adjust according to #GPUs
+per_device_eval_batch_size: 2
+learning_rate: 3.0e-3
+weight_decay: 0.033 
+lr_scheduler_type: "cosine"
+warmup_ratio: 0.05
+do_train: true
+do_eval: false
+max_steps: 40000 # 160B
+save_steps: 4000 # 16B
+save_total_limit: 15
+logging_steps: 1
+adam_beta2: 0.95 # important for avoiding loss spikes!
+min_lr_ratio: 0.1
+
+# Speedup
+
+bf16: true
+dataloader_num_workers: 8
+ddp_find_unused_parameters: false
+return_indices: true # this will enable variable length attention (no cross-document attention) + flash attention 2
+
+# Display 
+disable_tqdm: true
