@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# REQUIRES: NUM_GPU
+# Set up your environment here
+
+export OMP_NUM_THREADS=8
+export WANDB_PROJECT=YOUR-WANDB-PROJECT-NAME
+
+torchrun --nnodes=1 --nproc_per_node=$NUM_GPU run_clm.py $1
+

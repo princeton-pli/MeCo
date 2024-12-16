@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# REQUIRE: PORT
+
+# To handle the SIGUSR1 signal
+handle_signal()
+{
+    echo "$(date) Signal received..."
+    kill -s SIGUSR1 $PID
+}
+trap handle_signal SIGUSR1
+
+
+# Environment
+if [[ "$@" == *"sru"* ]]; then
+    echo "Using SRU environment"
+    source /scratch/gpfs/tianyug/miniforge3/etc/profile.d/mamba.sh
+    mamba activate sru
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/scratch/gpfs/tianyug/miniforge3/lib
+    export SRU=1
+else
+    echo "Using standard environment"
+    source /scratch/gpfs/tianyug/lm-training/.venv-latest-transformers-torch/bin/activate
+fi
+
+# Multi-GPU
+if [ -z "$SLURM_NTASKS_PER_NODE" ]
+then
+    SLURM_NTASKS_PER_NODE=$(expr $SLURM_NTASKS / $SLURM_NNODES)
+fi
+
+export WORLD_SIZE=$(expr $SLURM_NTASKS_PER_NODE \* $SLURM_NNODES)
+export LOCAL_WORLD_SIZE=$SLURM_NTASKS_PER_NODE
+FIRSTNODE=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
+export MASTER_ADDR=$FIRSTNODE
+export MASTER_PORT=$PORT
+export LOCAL_RANK=$SLURM_LOCALID
+export RANK=$(expr $SLURM_NODEID \* $SLURM_NTASKS_PER_NODE + $SLURM_LOCALID)
+export OMP_NUM_THREADS=8
+
+echo master $MASTER_ADDR, port $MASTER_PORT, world size $WORLD_SIZE, local world size $LOCAL_WORLD_SIZE, local rank $LOCAL_RANK, rank $RANK
+
+WANDB_PROJECT=lm-training WANDB_MODE=offline python run_clm.py $@ &
+PID="$!"
+echo $PID
+wait $PID
+
+CODE=$?
+echo "$PID exit code $CODE"
+wait
+exit $CODE
