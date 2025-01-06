@@ -10,18 +10,8 @@ handle_signal()
 }
 trap handle_signal SIGUSR1
 
-
 # Environment
-if [[ "$@" == *"sru"* ]]; then
-    echo "Using SRU environment"
-    source /scratch/gpfs/tianyug/miniforge3/etc/profile.d/mamba.sh
-    mamba activate sru
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/scratch/gpfs/tianyug/miniforge3/lib
-    export SRU=1
-else
-    echo "Using standard environment"
-    source /scratch/gpfs/tianyug/lm-training/.venv-latest-transformers-torch/bin/activate
-fi
+echo "Set up your environment here, for example, conda activate {env} or source {env}/bin/activate"
 
 # Multi-GPU
 if [ -z "$SLURM_NTASKS_PER_NODE" ]

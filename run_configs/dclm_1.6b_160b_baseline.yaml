@@ -3,19 +3,16 @@
 config_name: model_configs/1.6b.json
 tokenizer_name: meta-llama/Meta-Llama-3-8B
 
-run_name: dclm_1.6b_160b_mecoco_stage2
-output_dir: result/dclm_1.6b_160b_mecoco_stage2
-
-# Reload optimizer state, schedule state, etc. from previous checkpoint
-resume_from_checkpoint: result/dclm_1.6b_160b_mecoco_stage1/checkpoint-36000-nodatastate # need to remove the data loader state (see readme)
+run_name: dclm_1.6b_160b_baseline
+output_dir: result/dclm_1.6b_160b_baseline
 
 # Dataset
 
 streaming_dataset: true
 streaming_train_root: data
 streaming_val_root: data
-domains_and_proportions_train: "{'DCLM-cooldown': 1.0}"
-domains_and_proportions_val: "{'DCLM-cooldown': 1.0}" # we are not really using this so just placeholder
+domains_and_proportions_train: "{'DCLM': 1.0}"
+domains_and_proportions_val: "{'DCLM': 1.0}" # we are not really using this so just placeholder
 streaming_remote: false
 block_size: 8192 # sequence length
 

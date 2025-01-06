@@ -1,0 +1,7 @@
+# Required
+# jobname
+
+sbatch --output=slurm/%A-%x.out -N 4 --ntasks-per-node 8 --mem=800G --cpus-per-task 10  --gres=gpu:8  --time 48:00:00 --job-name $jobname --signal USR1@180  <<EOF
+#!/bin/bash
+PORT=$(expr $RANDOM + 1000) srun bash srun_launcher.sh $@
+EOF
