@@ -59,7 +59,7 @@ Below is the available unpacked tokenized data (by the Llama-3 tokenizer). All d
 | Data | Size | S3 path |
 |------|------|---------|
 | DCLM | 1.3T (270B tokens) | s3://princetonpli-data/MeCo/DCLM-unpacked/ |
-| DCLM (for cooldown only, 89B tokens) | x | s3://princetonpli-data/MeCo/DCLM-cooldown-unpacked/ |
+| DCLM (for cooldown only) | 443GB (89B tokens) | s3://princetonpli-data/MeCo/DCLM-cooldown-unpacked/ |
 
 
 Note: current we are still uploading the data and it is not complete.
