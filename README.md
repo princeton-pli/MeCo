@@ -62,8 +62,6 @@ Below is the available unpacked tokenized data (by the Llama-3 tokenizer). All d
 | DCLM (for cooldown only) | 443GB (89B tokens) | s3://princetonpli-data/MeCo/DCLM-cooldown-unpacked/ |
 
 
-Note: current we are still uploading the data and it is not complete.
-
 **Pack data.** Use the tools provided in `datatools/` to pack data (the following example uses 40 processes):
 
 ```bash
