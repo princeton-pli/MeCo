@@ -14,6 +14,7 @@ MODEL_DEFAULTS = {
     "dtype": "auto",
     "use_fast_tokenizer": True,
     "add_bos_token": False,
+    "prefix_text": None,
     "prefix_token_id": None,
     "parallelize": False,
     "device_map_option": "auto",

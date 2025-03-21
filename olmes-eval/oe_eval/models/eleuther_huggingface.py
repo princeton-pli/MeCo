@@ -10,6 +10,8 @@ from lm_eval.models.huggingface import HFLM
 from lm_eval.models.utils import Collator, pad_and_concat
 from tqdm import tqdm
 
+import os
+
 from oe_eval.components.requests import GenerateUntilRequest, LoglikelihoodRequest
 from oe_eval.utils import cut_at_stop_sequence
 
@@ -26,6 +28,7 @@ class HFLM_Verbose(HFLM):
         device: Optional[str] = None,
         device_map_option: Optional[str] = "auto",
         dtype: Optional[Union[str, torch.dtype]] = None,
+        prefix_text: Optional[str] = None,
         **kwargs,
         # pretrained: Optional[Union[str, transformers.PreTrainedModel]] = "gpt2",
         # backend: Optional[Literal["default", "causal", "seq2seq"]] = "default",
@@ -76,6 +79,18 @@ class HFLM_Verbose(HFLM):
             del kwargs["revision"]
         if torch.cuda.device_count() > 1:
             kwargs["parallelize"] = True
+        
+        # For conditional inference (using customized prefix text)
+        if prefix_text is None or prefix_text == "":
+            env_prefix = os.environ.get("OEEVAL_PREFIX")
+            if env_prefix:
+                prefix_text = env_prefix
+                print(f"Use env prefix text (for conditional inference): {prefix_text}")
+
+        self.prefix_text = prefix_text.replace("\\n", "\n") if prefix_text is not None else None
+        if self.prefix_text is not None:
+            print(f"Use prefix text (for conditional inference): {self.prefix_text}")
+
         super().__init__(
             pretrained, device=device, dtype=dtype, device_map_option=device_map_option, **kwargs
         )
@@ -148,6 +163,10 @@ class HFLM_Verbose(HFLM):
         for req in requests:
             context = cast(str, req.context)
             continuation = req.continuation
+            # Add prefix text for conditional inference
+            if self.prefix_text is not None:
+                context = self.prefix_text + context
+
             if context == "":
                 # BOS or EOS as context
                 context_enc, continuation_enc = (
@@ -443,6 +462,11 @@ class HFLM_Verbose(HFLM):
         chunks = re_ords.get_batched(n=batch_size, batch_fn=batch_fn)
         for chunk in chunks:
             contexts, all_gen_kwargs = zip(*chunk)
+
+            # Add prefix text for conditional inference
+            if self.prefix_text is not None:
+                contexts = [self.prefix_text + context for context in contexts]
+
             # we assume all gen kwargs in the batch are the same
             # this is safe to assume because the `grouper` object ensures it.
             gen_kwargs = all_gen_kwargs[0]
