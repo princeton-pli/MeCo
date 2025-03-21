@@ -107,7 +107,36 @@ jobname=baseline bash slurm_launcher.sh --run_config run_configs/dclm_1.6b_160b_
 
 ## Evaluation
 
-Coming soon!
+We use Ai2's [OLMES](https://github.com/allenai/olmes) for evaluation. We customized the code to support conditional inference with a prefix text. First, enter `olmes-eval` and install evaluation by `pip install -e .`.
+
+To evaluate a model, enter `olmes-eval` and use the following command (by default, it is 5-shot evaluation):
+
+
+```bash
+model={model name} task={task name} eval_dirname={a name to distinguish different eval seetings} [prefix="{prefix text for conditional inference}"] bash run_eval.sh
+```
+
+The task name can be one of the following: `arc_easy arc_challenge csqa hellaswag openbookqa piqa socialiqa winogrande mmlu truthfulqa`. For each evaluation run, a folder with evaluation results will be created under the model path, with the name of `$eval_dirname/`. 
+
+Example commands: 
+```bash
+# Standard 5-shot evaluation
+model=result/test_model task=arc_easy eval_dirname=5shot_standard bash run_eval.sh
+
+# Conditional inference with a prefix text
+model=result/test_model task=arc_easy eval_dirname=5shot_cond_infer prefix="URL: www.factcheckfun.com\n\n" bash run_eval.sh
+
+# Standard zero-shot
+model=result/test_model task=arc_easy eval_dirname=0shot_standard bash run_eval.sh --num-shots 0
+```
+
+After running the evaluation, you can use the following command to print the results (from left to right, mmlu, arc_easy, arc_challenge, csqa, hellaswag, openbookqa, piqa, socialiqa, winogrande, truthfulqa, average): 
+
+```bash
+python print_eval_result.py {checkpoint_path} {eval_dirname}
+# For example
+python print_eval_result.py result/test_model 5shot_standard
+```
 
 ## Downloading models
 

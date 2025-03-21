@@ -83,7 +83,7 @@ class HFLM_Verbose(HFLM):
         # For conditional inference (using customized prefix text)
         if prefix_text is None or prefix_text == "":
             env_prefix = os.environ.get("OEEVAL_PREFIX")
-            if env_prefix:
+            if env_prefix is not None and len(env_prefix) > 0:
                 prefix_text = env_prefix
                 print(f"Use env prefix text (for conditional inference): {prefix_text}")
 
