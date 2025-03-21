@@ -1,0 +1,160 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# See https://setuptools.pypa.io/en/latest/userguide/quickstart.html for more project configuration options.
+name = "ai2-olmes"
+dynamic = ["version"]
+readme = "README.md"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+authors = [
+    {name = "Allen Institute for Artificial Intelligence", email = "contact@allenai.org"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    # Add your own dependencies here
+    "omegaconf==2.4.0.dev3",  # Workaround for parse_latex in minerva_math to work
+    "antlr4-python3-runtime==4.11",  # Workaround for parse_latex in minerva_math to work
+    "numpy<2",  # Workaround for warning messages about compiled modules
+    "transformers>=4.45.0",  # Support Llama 3.2 and OLMoE
+    "lm_eval==0.4.3",  # Pin this to review changes, but will try to update to latest version
+    "torch>=2.2,<2.5",  # Needed for vLLM, lower versions might work for other uses
+    "ai2-olmo>=0.5.1",  # To run "hf-oldstyle" OLMo models
+    "einops",  # To run MPT models
+    "pygsheets",
+    "bitsandbytes", # For running quantized models
+    "fsspec==2023.5.0",  # Hack to avoid issues with dataset loading (e.g., boolq)
+    "boto3",  # For downloading from S3
+    "langdetect", # For IFEval
+    "immutabledict", # For IFEval
+    "smart-open", # Allows saving to remote locations
+    "wandb",  # For logging
+    "alpaca_eval",
+    "litellm",  # For LLM judges
+    "tenacity",
+    "tree-sitter",
+    "tree-sitter-python",
+    "gradio-client",
+]
+license = {file = "LICENSE"}
+
+[project.scripts]
+olmes = "oe_eval.launch:main"
+
+[project.urls]
+Homepage = "https://github.com/allenai/olmes"
+Repository = "https://github.com/allenai/olmes"
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy>=1.0,<1.5",
+    "black>=23.0",
+    "isort>=5.12,<5.13",
+    "pytest",
+    "pytest-sphinx",
+    "pytest-cov",
+    "twine>=1.11.0",
+    "build",
+    "setuptools",
+    "wheel",
+    "Sphinx>=4.3.0,<7.1.0",
+    "furo==2023.7.26",
+    "myst-parser>=1.0,<2.1",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-autobuild==2021.3.14",
+    "sphinx-autodoc-typehints==1.23.3",
+    "packaging"
+]
+gpu = [
+    "vllm>=0.6.2,<0.6.4", # For running VLLM models, <0.6.4 to avoid torch 2.5 for now
+    "xformers",
+]
+
+[tool.setuptools.packages.find]
+exclude = [
+    "*.tests",
+    "*.tests.*",
+    "tests.*",
+    "tests",
+    "docs*",
+    "scripts*"
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+olmes = ["py.typed"]
+
+[tool.setuptools.dynamic]
+version = {attr = "oe_eval.version.VERSION"}
+
+[tool.black]
+line-length = 100
+include = '\.pyi?$'
+exclude = '''
+(
+      __pycache__
+    | \.git
+    | \.mypy_cache
+    | \.pytest_cache
+    | \.vscode
+    | \.venv
+    | \bdist\b
+    | \bdoc\b
+    | ^/examples
+    | ^/experiments
+    | ^/oe_eval/dependencies
+)
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+skip_glob = ["examples/*", "experiments/*", "oe_eval/dependencies/*"]
+
+# You can override these pyright settings by adding a personal pyrightconfig.json file.
+[tool.pyright]
+reportPrivateImportUsage = false
+
+[tool.ruff]
+line-length = 115
+target-version = "py39"
+extend-exclude = ["examples/", "experiments/", "oe_eval/dependencies/"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.mypy]
+ignore_missing_imports = true
+no_site_packages = true
+check_untyped_defs = true
+exclude = [
+    "^examples",
+    "^experiments"
+]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+strict_optional = false
+
+[[tool.mypy.overrides]]
+module = "oe_eval.dependencies.*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = "tests/"
+python_classes = [
+  "Test*",
+  "*Test"
+]
+log_format = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+log_level = "DEBUG"
