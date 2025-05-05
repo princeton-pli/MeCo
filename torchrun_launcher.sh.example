@@ -6,5 +6,5 @@ echo "Set up your environment here, for example, conda activate {env} or source 
 export OMP_NUM_THREADS=8
 export WANDB_PROJECT=YOUR-WANDB-PROJECT-NAME
 
-torchrun --nnodes=1 --nproc_per_node=$NUM_GPU run_clm.py $1
+torchrun --nnodes=1 --nproc_per_node=$NUM_GPU run_clm.py $@
 
