@@ -25,14 +25,6 @@ Authors: [Tianyu Gao](https://gaotianyu.xyz/about) (`tianyug@princeton.edu`), [A
   - [Citation](#citation)
 
 
-## Release Progress
-
-- [x] Training code
-- [x] Checkpoints
-- [x] Data and data preparation
-- [x] Training readme
-- [ ] Evaluation readme
-
 ## Requirements
 
 Please install all the requirements by running `pip install -r requirements.txt`.
