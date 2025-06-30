@@ -137,10 +137,10 @@ You can download the checkpoints in our experiments from our [Hugging Face colle
 ## Citation
 
 ```bibtex
-@article{gao2025meco,
+@inproceedings{gao2025meco,
   title={Metadata Conditioning Accelerates Language Model Pre-training},
   author={Tianyu Gao and Alexander Wettig and Luxi He and Yihe Dong and Sadhika Malladi and Danqi Chen},
-  journal={arXiv preprint arXiv:2501.01956},
+  booktitle={ICML},
   year={2025}
 }
 ```
